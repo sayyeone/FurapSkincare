@@ -101,6 +101,23 @@
         </div>
 
         <%
+            List<com.furapskin.model.Category> categories = (List<com.furapskin.model.Category>) request.getAttribute("categories");
+            Integer selectedCat = (Integer) request.getAttribute("selectedCategoryId");
+            if (categories != null && !categories.isEmpty()) {
+        %>
+            <div class="flex flex-wrap justify-center gap-3 mb-10">
+                <a href="catalog" class="px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-300 <%= selectedCat == null ? "bg-zinc-900 text-white shadow-md" : "bg-white text-zinc-600 border border-zinc-200 hover:bg-zinc-50" %>">
+                    All Products
+                </a>
+                <% for (com.furapskin.model.Category cat : categories) { %>
+                    <a href="catalog?categoryId=<%= cat.getId() %>" class="px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-300 <%= selectedCat != null && selectedCat == cat.getId() ? "bg-zinc-900 text-white shadow-md" : "bg-white text-zinc-600 border border-zinc-200 hover:bg-zinc-50" %>">
+                        <%= cat.getName() %>
+                    </a>
+                <% } %>
+            </div>
+        <% } %>
+
+        <%
             List<Product> products = (List<Product>) request.getAttribute("products");
             if (products == null || products.isEmpty()) {
         %>
@@ -133,6 +150,7 @@
                             <div class="flex items-center justify-between border-t border-zinc-100 pt-4 mt-auto">
                                 <span class="text-xs font-medium text-zinc-400 uppercase tracking-wider">Stock: <%= p.getStock() %></span>
                                 
+                                <% if (p.getStock() > 0) { %>
                                 <form action="cart/add" method="post" class="flex items-center gap-2">
                                     <input type="hidden" name="productId" value="<%= p.getId() %>">
                                     <input type="number" name="quantity" value="1" min="1" max="<%= p.getStock() %>" class="w-16 h-10 px-3 bg-[#FFF8F6] border border-zinc-200 rounded-full text-sm text-center focus:ring-2 focus:ring-rose-200 focus:border-rose-300 transition-all outline-none">
@@ -140,6 +158,11 @@
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                                     </button>
                                 </form>
+                                <% } else { %>
+                                <div class="flex items-center gap-2">
+                                    <span class="px-4 py-2 bg-zinc-100 text-zinc-400 font-medium text-sm rounded-full border border-zinc-200 cursor-not-allowed">Habis</span>
+                                </div>
+                                <% } %>
                             </div>
                         </div>
                     </div>

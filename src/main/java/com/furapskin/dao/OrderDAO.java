@@ -150,4 +150,66 @@ public class OrderDAO {
         }
         return count;
     }
+
+    public java.util.List<Order> getOrdersByCustomerId(int customerId) {
+        java.util.List<Order> list = new java.util.ArrayList<>();
+        String sql = "SELECT * FROM orders WHERE customer_id = ? ORDER BY order_date DESC";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, customerId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    Order o = new Order();
+                    o.setId(rs.getInt("id"));
+                    o.setOrderDate(rs.getTimestamp("order_date"));
+                    o.setTotalAmount(rs.getDouble("total_amount"));
+                    o.setStatus(com.furapskin.model.OrderStatus.valueOf(rs.getString("status")));
+                    list.add(o);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    public java.util.List<Order> getPendingOrders() {
+        java.util.List<Order> list = new java.util.ArrayList<>();
+        String sql = "SELECT o.*, u.full_name AS customer_name, p.status AS payment_status, p.payment_method " +
+                     "FROM orders o " +
+                     "JOIN users u ON o.customer_id = u.id " +
+                     "JOIN payments p ON o.id = p.order_id " +
+                     "WHERE o.status = 'PENDING'";
+        try (Connection conn = DatabaseConnection.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            while (rs.next()) {
+                Order o = new Order();
+                o.setId(rs.getInt("id"));
+                o.setOrderDate(rs.getTimestamp("order_date"));
+                o.setTotalAmount(rs.getDouble("total_amount"));
+                o.setStatus(com.furapskin.model.OrderStatus.valueOf(rs.getString("status")));
+                
+                com.furapskin.model.Customer cust = new com.furapskin.model.Customer();
+                cust.setFullName(rs.getString("customer_name"));
+                o.setCustomer(cust);
+                
+                String pMethodStr = rs.getString("payment_method");
+                if ("BANK_TRANSFER".equals(pMethodStr)) {
+                    com.furapskin.model.BankTransfer bt = new com.furapskin.model.BankTransfer();
+                    bt.setStatus(com.furapskin.model.PaymentStatus.valueOf(rs.getString("payment_status")));
+                    o.setPayment(bt);
+                } else {
+                    com.furapskin.model.EWallet ew = new com.furapskin.model.EWallet();
+                    ew.setStatus(com.furapskin.model.PaymentStatus.valueOf(rs.getString("payment_status")));
+                    o.setPayment(ew);
+                }
+                
+                list.add(o);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
 }

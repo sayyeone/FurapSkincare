@@ -22,14 +22,15 @@ public class CheckoutServlet extends HttpServlet {
         HttpSession session = request.getSession();
         Customer user = (Customer) session.getAttribute("user");
         Cart cart = (Cart) session.getAttribute("cart");
+        java.util.List<Integer> selectedIds = (java.util.List<Integer>) session.getAttribute("selectedCartItems");
 
-        if (user == null || cart == null || cart.getItems().isEmpty()) {
+        if (user == null || cart == null || cart.getItems().isEmpty() || selectedIds == null || selectedIds.isEmpty()) {
             response.sendRedirect(request.getContextPath() + "/cart.jsp");
             return;
         }
 
         String paymentMethod = request.getParameter("paymentMethod");
-        String shippingAddress = request.getParameter("shippingAddress");
+        String shippingAddress = request.getParameter("address");
 
         Order order = new Order();
         order.setCustomer(user);
@@ -37,12 +38,14 @@ public class CheckoutServlet extends HttpServlet {
         
         double total = 0;
         for (CartItem ci : cart.getItems()) {
-            OrderItem oi = new OrderItem();
-            oi.setProduct(ci.getProduct());
-            oi.setQuantity(ci.getQuantity());
-            oi.setPrice(ci.getProduct().getPrice());
-            total += (oi.getPrice() * oi.getQuantity());
-            order.getItems().add(oi);
+            if (selectedIds.contains(ci.getProduct().getId())) {
+                OrderItem oi = new OrderItem();
+                oi.setProduct(ci.getProduct());
+                oi.setQuantity(ci.getQuantity());
+                oi.setPrice(ci.getProduct().getPrice());
+                total += (oi.getPrice() * oi.getQuantity());
+                order.getItems().add(oi);
+            }
         }
         order.setTotalAmount(total);
 
@@ -64,8 +67,9 @@ public class CheckoutServlet extends HttpServlet {
 
         // Persist complex aggregated tree in a single transaction
         if (orderDAO.createOrder(order)) {
-            session.removeAttribute("cart");
-            cartDAO.clearCartByCustomerId(user.getId());
+            cart.getItems().removeIf(ci -> selectedIds.contains(ci.getProduct().getId()));
+            cartDAO.saveCart(cart);
+            session.removeAttribute("selectedCartItems");
             response.sendRedirect(request.getContextPath() + "/customer_dashboard.jsp?orderSuccess=true");
         } else {
             response.sendRedirect(request.getContextPath() + "/checkout.jsp?error=true");

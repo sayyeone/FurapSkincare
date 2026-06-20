@@ -23,7 +23,7 @@
                 FurapSkin<span class="text-rose-400 text-sm align-top ml-1">ADMIN</span>
             </a>
             <nav class="hidden md:flex items-center space-x-6">
-                <a href="<%= request.getContextPath() %>/admin_dashboard.jsp" class="text-zinc-400 hover:text-white transition-colors duration-300">Approvals</a>
+                <a href="<%= request.getContextPath() %>/admin/dashboard" class="text-zinc-400 hover:text-white transition-colors duration-300">Approvals</a>
                 <a href="<%= request.getContextPath() %>/admin/products" class="text-rose-400 font-semibold tracking-wide border-b-2 border-rose-400 pb-1">Products</a>
                 <a href="<%= request.getContextPath() %>/admin/sales" class="text-zinc-400 hover:text-white transition-colors duration-300">Sales Report</a>
                 <a href="<%= request.getContextPath() %>/auth/logout" class="ml-4 px-6 py-2.5 rounded-full bg-white/10 text-white font-medium hover:bg-rose-500 transition-all duration-300 ease-in-out hover:-translate-y-0.5">
@@ -73,10 +73,15 @@
                         <div>
                             <label class="block text-xs font-medium text-slate-500 uppercase tracking-wider mb-1">Category</label>
                             <select name="categoryId" class="w-full px-4 py-3 bg-[#FFF8F6]/50 border border-zinc-200 rounded-2xl focus:ring-2 focus:ring-rose-200 outline-none">
-                                <option value="1">Skincare</option>
-                                <option value="2">Bodycare</option>
-                                <option value="3">Haircare</option>
-                                <option value="4">Accessories</option>
+                                <% 
+                                    List<com.furapskin.model.Category> categories = (List<com.furapskin.model.Category>) request.getAttribute("categories");
+                                    if (categories != null) {
+                                        for (com.furapskin.model.Category cat : categories) {
+                                %>
+                                <option value="<%= cat.getId() %>"><%= cat.getName() %></option>
+                                <%      }
+                                    }
+                                %>
                             </select>
                         </div>
                         <div>
@@ -202,10 +207,14 @@
                         <div class="col-span-1">
                             <label class="block text-xs font-medium text-slate-500 uppercase tracking-wider mb-1">Category</label>
                             <select name="categoryId" id="edit-category" class="w-full px-4 py-2.5 bg-slate-50 border border-zinc-200 rounded-xl outline-none text-sm">
-                                <option value="1">Skincare</option>
-                                <option value="2">Bodycare</option>
-                                <option value="3">Haircare</option>
-                                <option value="4">Accessories</option>
+                                <% 
+                                    if (categories != null) {
+                                        for (com.furapskin.model.Category cat : categories) {
+                                %>
+                                <option value="<%= cat.getId() %>"><%= cat.getName() %></option>
+                                <%      }
+                                    }
+                                %>
                             </select>
                         </div>
                         <div class="col-span-1">

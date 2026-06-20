@@ -42,6 +42,7 @@ public class AdminServlet extends HttpServlet {
         String pathInfo = request.getPathInfo();
         if ("/products".equals(pathInfo)) {
             request.setAttribute("products", productDAO.getAllProducts());
+            request.setAttribute("categories", productDAO.getAllCategories());
             request.getRequestDispatcher("/admin_products.jsp").forward(request, response);
         } else if ("/sales".equals(pathInfo)) {
             request.setAttribute("orders", orderDAO.getAllPaidOrders());
@@ -49,8 +50,11 @@ public class AdminServlet extends HttpServlet {
             request.setAttribute("totalOrders", orderDAO.getTotalOrdersCount());
             request.setAttribute("lowStockProducts", productDAO.getLowStockProducts());
             request.getRequestDispatcher("/admin_sales.jsp").forward(request, response);
+        } else if ("/dashboard".equals(pathInfo) || pathInfo == null || "/".equals(pathInfo)) {
+            request.setAttribute("pendingOrders", orderDAO.getPendingOrders());
+            request.getRequestDispatcher("/admin_dashboard.jsp").forward(request, response);
         } else {
-            response.sendRedirect(request.getContextPath() + "/admin_dashboard.jsp");
+            response.sendError(HttpServletResponse.SC_NOT_FOUND);
         }
     }
 
@@ -68,7 +72,7 @@ public class AdminServlet extends HttpServlet {
         if ("/approve-payment".equals(pathInfo)) {
             int orderId = Integer.parseInt(request.getParameter("orderId"));
             paymentDAO.approvePayment(orderId);
-            response.sendRedirect(request.getContextPath() + "/admin_dashboard.jsp?success=true");
+            response.sendRedirect(request.getContextPath() + "/admin/dashboard?success=true");
             
         } else if ("/add-product".equals(pathInfo)) {
             Product p = new Product();

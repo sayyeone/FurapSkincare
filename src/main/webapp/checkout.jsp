@@ -23,14 +23,38 @@
             </a>
             <nav class="hidden md:flex items-center space-x-10">
                 <a href="catalog" class="text-zinc-500 font-medium hover:text-rose-950/80 transition-colors duration-300">Catalog</a>
-                <a href="cart.jsp" class="text-zinc-500 font-medium hover:text-rose-950/80 transition-colors duration-300 flex items-center gap-2">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                <a href="cart.jsp" class="relative text-zinc-500 font-medium hover:text-rose-950/80 transition-colors duration-300 flex items-center gap-2">
+                    <div class="relative">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                        <%
+                            com.furapskin.model.Cart cartNav = (com.furapskin.model.Cart) session.getAttribute("cart");
+                            int cartCount = 0;
+                            if (cartNav != null) {
+                                for (com.furapskin.model.CartItem ci : cartNav.getItems()) {
+                                    cartCount += ci.getQuantity();
+                                }
+                            }
+                            if (cartCount > 0) {
+                        %>
+                        <span class="absolute -top-2 -right-2 bg-rose-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full flex items-center justify-center min-w-[1.25rem]"><%= cartCount %></span>
+                        <% } %>
+                    </div>
                     Cart
                 </a>
+                <%
+                    com.furapskin.model.User currentUser = (com.furapskin.model.User) session.getAttribute("user");
+                    if (currentUser == null) {
+                %>
                 <a href="login.jsp" class="text-zinc-500 font-medium hover:text-rose-950/80 transition-colors duration-300">Login</a>
                 <a href="register.jsp" class="px-6 py-2.5 rounded-full bg-rose-50/50 border border-rose-200/50 text-rose-600/80 font-medium hover:bg-rose-100/50 transition-all duration-300 ease-in-out hover:-translate-y-0.5">
                     Sign Up
                 </a>
+                <% } else { %>
+                <a href="<%= "ADMIN".equals(currentUser.getRole()) ? "admin_dashboard.jsp" : "customer_dashboard.jsp" %>" class="text-rose-900 font-semibold hover:text-rose-600 transition-colors duration-300">My Dashboard</a>
+                <a href="<%= request.getContextPath() %>/auth/logout" class="px-6 py-2.5 rounded-full bg-zinc-100 border border-zinc-200 text-zinc-600 font-medium hover:bg-zinc-200 transition-all duration-300 ease-in-out">
+                    Logout
+                </a>
+                <% } %>
             </nav>
         </header>
     </div>
@@ -47,7 +71,23 @@
 
         <%
             Cart cart = (Cart) session.getAttribute("cart");
-            if (cart == null || cart.getItems().isEmpty()) {
+            java.util.List<Integer> selectedIds = (java.util.List<Integer>) session.getAttribute("selectedCartItems");
+            
+            if (cart == null || cart.getItems().isEmpty() || selectedIds == null || selectedIds.isEmpty()) {
+                response.sendRedirect("cart.jsp");
+                return;
+            }
+            
+            int totalSelectedItems = 0;
+            double totalSelectedPrice = 0;
+            for (com.furapskin.model.CartItem item : cart.getItems()) {
+                if (selectedIds.contains(item.getProduct().getId())) {
+                    totalSelectedItems += item.getQuantity();
+                    totalSelectedPrice += item.getSubtotal();
+                }
+            }
+            
+            if (totalSelectedItems == 0) {
                 response.sendRedirect("cart.jsp");
                 return;
             }
@@ -55,7 +95,7 @@
 
         <% if ("true".equals(request.getParameter("error"))) { %>
             <div class="mb-8 p-4 bg-red-50 border border-red-200 text-red-600 rounded-2xl text-center text-sm font-medium shadow-sm">
-                Error processing checkout. Ensure you are logged in as a Customer.
+                Error processing your order. Please try again or check your details.
             </div>
         <% } %>
 
@@ -120,8 +160,8 @@
                     
                     <div class="space-y-4 mb-6">
                         <div class="flex justify-between text-sm text-slate-600">
-                            <span>Subtotal (<%= cart.getItems().size() %> items)</span>
-                            <span class="font-medium text-zinc-900">Rp <%= String.format("%,d", (int)cart.getTotalPrice()) %></span>
+                            <span>Subtotal (<%= totalSelectedItems %> items)</span>
+                            <span class="font-medium text-zinc-900">Rp <%= String.format("%,d", (int)totalSelectedPrice) %></span>
                         </div>
                         <div class="flex justify-between text-sm text-slate-600">
                             <span>Shipping</span>
@@ -135,7 +175,7 @@
                     
                     <div class="pt-6 border-t border-rose-200/50 flex justify-between items-end">
                         <span class="text-sm font-medium text-slate-500 uppercase tracking-wider">Total</span>
-                        <span class="text-3xl font-serif font-bold text-rose-600">Rp <%= String.format("%,d", (int)cart.getTotalPrice()) %></span>
+                        <span class="text-3xl font-serif font-bold text-rose-600">Rp <%= String.format("%,d", (int)totalSelectedPrice) %></span>
                     </div>
                     
                     <div class="mt-8 bg-white/60 rounded-2xl p-4 flex items-start gap-3 border border-white">

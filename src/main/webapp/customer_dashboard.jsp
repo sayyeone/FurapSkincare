@@ -1,5 +1,8 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="com.furapskin.model.User" %>
+<%@ page import="com.furapskin.model.Order" %>
+<%@ page import="java.util.List" %>
+<%@ page import="com.furapskin.dao.OrderDAO" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -69,6 +72,11 @@
                 Recent Orders
             </h2>
             
+            <%
+                OrderDAO orderDAO = new OrderDAO();
+                List<Order> orders = orderDAO.getOrdersByCustomerId(user.getId());
+                if (orders == null || orders.isEmpty()) {
+            %>
             <div class="bg-[#FFF8F6]/50 rounded-2xl border border-zinc-100 p-10 text-center flex flex-col items-center">
                 <div class="w-16 h-16 bg-rose-50 rounded-full flex items-center justify-center mb-4 text-rose-300">
                     <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
@@ -76,6 +84,27 @@
                 <p class="text-lg font-medium text-zinc-900">No active orders found.</p>
                 <p class="text-sm text-slate-500 font-light mt-1">Orders you place will appear here along with their status.</p>
             </div>
+            <% } else { %>
+            <div class="space-y-4">
+                <% for (Order o : orders) { %>
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center p-6 border border-zinc-100 rounded-2xl hover:shadow-md transition-shadow bg-white">
+                    <div class="mb-4 sm:mb-0">
+                        <p class="text-sm text-slate-500 font-medium tracking-wide mb-1">ORDER #<%= o.getId() %></p>
+                        <p class="text-lg font-serif font-bold text-zinc-900">Rp <%= String.format("%,d", (int)o.getTotalAmount()) %></p>
+                        <p class="text-sm text-zinc-400 mt-1"><%= new java.text.SimpleDateFormat("MMM dd, yyyy").format(o.getOrderDate()) %></p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="px-4 py-1.5 rounded-full text-xs font-bold tracking-wider uppercase
+                            <%= o.getStatus().name().equals("PENDING") ? "bg-amber-50 text-amber-600 border border-amber-200" :
+                                o.getStatus().name().equals("COMPLETED") ? "bg-emerald-50 text-emerald-600 border border-emerald-200" :
+                                "bg-rose-50 text-rose-600 border border-rose-200" %>">
+                            <%= o.getStatus().name() %>
+                        </span>
+                    </div>
+                </div>
+                <% } %>
+            </div>
+            <% } %>
         </div>
 
     </main>

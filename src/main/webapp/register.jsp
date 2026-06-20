@@ -78,6 +78,10 @@
                         </button>
                     </div>
                 </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-600 mb-2">Admin Token <span class="text-xs text-slate-400 font-light ml-1">(Optional)</span></label>
+                    <input type="password" name="adminToken" class="w-full px-5 py-3.5 bg-[#FFF8F6]/50 border border-zinc-200 rounded-2xl focus:ring-2 focus:ring-rose-200 focus:border-rose-400 outline-none transition-all placeholder:text-zinc-400" placeholder="Secret code to register as Admin">
+                </div>
                 <button type="submit" class="w-full py-4 mt-4 bg-zinc-900 text-white font-semibold tracking-wide rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.1)] hover:bg-rose-500 hover:shadow-[0_8px_30px_rgb(225,29,72,0.3)] transition-all duration-300 ease-in-out hover:-translate-y-1">
                     Create Account
                 </button>

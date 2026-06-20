@@ -17,7 +17,18 @@ public class ProductServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        List<Product> products = productDAO.getAllProducts();
+        String categoryIdParam = request.getParameter("categoryId");
+        List<Product> products;
+        if (categoryIdParam != null && !categoryIdParam.isEmpty()) {
+            int categoryId = Integer.parseInt(categoryIdParam);
+            products = productDAO.getProductsByCategory(categoryId);
+            request.setAttribute("selectedCategoryId", categoryId);
+        } else {
+            products = productDAO.getAllProducts();
+        }
+        
+        List<com.furapskin.model.Category> categories = productDAO.getAllCategories();
+        request.setAttribute("categories", categories);
         request.setAttribute("products", products);
         request.getRequestDispatcher("/catalog.jsp").forward(request, response);
     }

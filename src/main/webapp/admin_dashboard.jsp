@@ -24,7 +24,7 @@
                 FurapSkin<span class="text-rose-400 text-sm align-top ml-1">ADMIN</span>
             </a>
             <nav class="hidden md:flex items-center space-x-6">
-                <a href="<%= request.getContextPath() %>/admin_dashboard.jsp" class="text-rose-400 font-semibold tracking-wide border-b-2 border-rose-400 pb-1">Approvals</a>
+                <a href="<%= request.getContextPath() %>/admin/dashboard" class="text-rose-400 font-semibold tracking-wide border-b-2 border-rose-400 pb-1">Approvals</a>
                 <a href="<%= request.getContextPath() %>/admin/products" class="text-zinc-400 hover:text-white transition-colors duration-300">Products</a>
                 <a href="<%= request.getContextPath() %>/admin/sales" class="text-zinc-400 hover:text-white transition-colors duration-300">Sales Report</a>
                 <a href="<%= request.getContextPath() %>/auth/logout" class="ml-4 px-6 py-2.5 rounded-full bg-white/10 text-white font-medium hover:bg-rose-500 transition-all duration-300 ease-in-out hover:-translate-y-0.5">
