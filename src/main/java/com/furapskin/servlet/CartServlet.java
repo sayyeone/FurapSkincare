@@ -70,7 +70,7 @@ public class CartServlet extends HttpServlet {
                     cart.addItem(item);
                 }
             }
-            response.sendRedirect(request.getContextPath() + "/cart.jsp");
+            response.sendRedirect(request.getContextPath() + "/catalog?success=add");
         } else if ("/clear".equals(pathInfo)) {
             session.removeAttribute("cart");
             response.sendRedirect(request.getContextPath() + "/cart.jsp");

@@ -24,8 +24,22 @@
             </a>
             <nav class="hidden md:flex items-center space-x-10">
                 <a href="catalog" class="text-rose-950/80 font-semibold transition-colors duration-300">Catalog</a>
-                <a href="cart.jsp" class="text-zinc-500 font-medium hover:text-rose-950/80 transition-colors duration-300 flex items-center gap-2">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                <a href="cart.jsp" class="relative text-zinc-500 font-medium hover:text-rose-950/80 transition-colors duration-300 flex items-center gap-2">
+                    <div class="relative">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                        <%
+                            com.furapskin.model.Cart cartNav = (com.furapskin.model.Cart) session.getAttribute("cart");
+                            int cartCount = 0;
+                            if (cartNav != null) {
+                                for (com.furapskin.model.CartItem ci : cartNav.getItems()) {
+                                    cartCount += ci.getQuantity();
+                                }
+                            }
+                            if (cartCount > 0) {
+                        %>
+                        <span class="absolute -top-2 -right-2 bg-rose-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full flex items-center justify-center min-w-[1.25rem]"><%= cartCount %></span>
+                        <% } %>
+                    </div>
                     Cart
                 </a>
                 <%
@@ -55,6 +69,13 @@
         <div class="mb-8 p-4 bg-rose-50/80 border border-rose-200/50 rounded-2xl flex items-center justify-center text-rose-600 font-medium shadow-sm transition-all duration-300">
             <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
             Oops! Stok produk ini hanya tersisa <%= request.getParameter("limit") %>, dan Anda sudah memasukkan semuanya ke dalam keranjang.
+        </div>
+        <% } %>
+
+        <% if ("add".equals(request.getParameter("success"))) { %>
+        <div class="mb-8 p-4 bg-emerald-50/80 border border-emerald-200/50 rounded-2xl flex items-center justify-center text-emerald-600 font-medium shadow-sm transition-all duration-300">
+            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+            Produk berhasil ditambahkan ke keranjang belanja Anda!
         </div>
         <% } %>
 
