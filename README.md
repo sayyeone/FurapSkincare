@@ -21,7 +21,10 @@ Aplikasi ini dikembangkan menggunakan teknologi Java Enterprise Edition (Java EE
 
 ## 🚀 Cara Menjalankan Aplikasi
 
-Aplikasi ini sangat mudah dijalankan karena sudah dikemas menggunakan **Docker**. Anda tidak perlu melakukan konfigurasi database maupun instalasi server secara manual.
+Aplikasi ini dapat dijalankan dengan dua cara, yaitu menggunakan **Docker (Otomatis)** atau **XAMPP/Laragon (Manual)**.
+
+### Opsi 1: Menjalankan dengan Docker (Sangat Direkomendasikan)
+Aplikasi ini sudah dikemas menggunakan Docker sehingga Anda tidak perlu melakukan konfigurasi database maupun instalasi server secara manual.
 
 **Langkah-langkah:**
 1. Pastikan **Docker Desktop** sudah terinstal dan berjalan di komputer/laptop Anda.
@@ -36,6 +39,37 @@ Aplikasi ini sangat mudah dijalankan karena sudah dikemas menggunakan **Docker**
    - **Manajemen Database (opsional)**: `http://localhost:8081`
 
 > **Penting**: Sistem database dan data awal (kategori, dll) akan terisi secara otomatis tanpa perlu *import* file SQL.
+
+---
+
+### Opsi 2: Menjalankan secara Manual (XAMPP / Laragon & Tomcat Lokal)
+Jika Anda (atau Dosen) ingin menjalankan aplikasi secara tradisional tanpa menggunakan Docker, ikuti langkah berikut:
+
+**1. Persiapan Database (XAMPP / Laragon):**
+1. Buka XAMPP/Laragon dan jalankan **MySQL** (serta Apache jika menggunakan phpMyAdmin).
+2. Buka `http://localhost/phpmyadmin` (atau aplikasi database client Anda).
+3. Buat database baru bernama `furapskin_v2`.
+4. Buka folder `db/init/` di dalam proyek ini, lalu *import* file `schema.sql` ke dalam database `furapskin_v2`.
+5. *(Opsional)* Tambahkan data awal di tabel `categories` (misal: Skincare, Bodycare) agar bisa langsung menambah produk dari dashboard admin.
+
+**2. Konfigurasi Koneksi Database di Java:**
+1. Buka file `src/main/java/com/furapskin/dao/DatabaseConnection.java`.
+2. Ubah URL koneksi dari konfigurasi Docker menjadi konfigurasi *localhost* Anda.
+   Ubah baris ini:
+   ```java
+   private static final String URL = "jdbc:mysql://furapskin-db:3306/furapskin_v2";
+   ```
+   Menjadi:
+   ```java
+   private static final String URL = "jdbc:mysql://localhost:3306/furapskin_v2";
+   ```
+3. Sesuaikan juga `USER` dan `PASS` jika MySQL lokal Anda memiliki password (biasanya kosong `""` pada XAMPP, atau `"root"` pada Laragon).
+
+**3. Deploy ke Tomcat Lokal:**
+1. Pastikan Anda memiliki **Apache Tomcat versi 10** (aplikasi ini menggunakan `jakarta.servlet`).
+2. Buka proyek ini menggunakan IDE pilihan Anda (IntelliJ IDEA, Eclipse, atau NetBeans).
+3. Atur konfigurasi *Run/Debug* untuk menjalankan proyek menggunakan Tomcat 10 lokal Anda.
+4. *Run* proyek, dan akses aplikasi di `http://localhost:8080`.
 
 ---
 
