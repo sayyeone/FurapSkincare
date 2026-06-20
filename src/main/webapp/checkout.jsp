@@ -121,7 +121,7 @@
                     <div class="space-y-4 mb-6">
                         <div class="flex justify-between text-sm text-slate-600">
                             <span>Subtotal (<%= cart.getItems().size() %> items)</span>
-                            <span class="font-medium text-zinc-900">Rp <%= String.format("%,d", cart.getTotalPrice()) %></span>
+                            <span class="font-medium text-zinc-900">Rp <%= String.format("%,d", (int)cart.getTotalPrice()) %></span>
                         </div>
                         <div class="flex justify-between text-sm text-slate-600">
                             <span>Shipping</span>
@@ -135,7 +135,7 @@
                     
                     <div class="pt-6 border-t border-rose-200/50 flex justify-between items-end">
                         <span class="text-sm font-medium text-slate-500 uppercase tracking-wider">Total</span>
-                        <span class="text-3xl font-serif font-bold text-rose-600">Rp <%= String.format("%,d", cart.getTotalPrice()) %></span>
+                        <span class="text-3xl font-serif font-bold text-rose-600">Rp <%= String.format("%,d", (int)cart.getTotalPrice()) %></span>
                     </div>
                     
                     <div class="mt-8 bg-white/60 rounded-2xl p-4 flex items-start gap-3 border border-white">

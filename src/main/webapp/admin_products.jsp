@@ -74,8 +74,9 @@
                             <label class="block text-xs font-medium text-slate-500 uppercase tracking-wider mb-1">Category</label>
                             <select name="categoryId" class="w-full px-4 py-3 bg-[#FFF8F6]/50 border border-zinc-200 rounded-2xl focus:ring-2 focus:ring-rose-200 outline-none">
                                 <option value="1">Skincare</option>
-                                <option value="2">Makeup</option>
-                                <option value="3">Bodycare</option>
+                                <option value="2">Bodycare</option>
+                                <option value="3">Haircare</option>
+                                <option value="4">Accessories</option>
                             </select>
                         </div>
                         <div>
@@ -202,8 +203,9 @@
                             <label class="block text-xs font-medium text-slate-500 uppercase tracking-wider mb-1">Category</label>
                             <select name="categoryId" id="edit-category" class="w-full px-4 py-2.5 bg-slate-50 border border-zinc-200 rounded-xl outline-none text-sm">
                                 <option value="1">Skincare</option>
-                                <option value="2">Makeup</option>
-                                <option value="3">Bodycare</option>
+                                <option value="2">Bodycare</option>
+                                <option value="3">Haircare</option>
+                                <option value="4">Accessories</option>
                             </select>
                         </div>
                         <div class="col-span-1">

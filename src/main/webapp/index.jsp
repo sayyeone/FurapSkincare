@@ -26,10 +26,20 @@
             <!-- Desktop Nav -->
             <nav class="hidden md:flex items-center space-x-10">
                 <a href="catalog" class="text-zinc-500 font-medium hover:text-rose-950/80 transition-colors duration-300">Catalog</a>
+                <%
+                    com.furapskin.model.User currentUser = (com.furapskin.model.User) session.getAttribute("user");
+                    if (currentUser == null) {
+                %>
                 <a href="login.jsp" class="text-zinc-500 font-medium hover:text-rose-950/80 transition-colors duration-300">Login</a>
                 <a href="register.jsp" class="px-6 py-2.5 rounded-full bg-rose-50/50 border border-rose-200/50 text-rose-600/80 font-medium hover:bg-rose-100/50 transition-all duration-300 ease-in-out hover:-translate-y-0.5">
                     Sign Up
                 </a>
+                <% } else { %>
+                <a href="<%= "ADMIN".equals(currentUser.getRole()) ? "admin_dashboard.jsp" : "customer_dashboard.jsp" %>" class="text-rose-900 font-semibold hover:text-rose-600 transition-colors duration-300">My Dashboard</a>
+                <a href="<%= request.getContextPath() %>/auth/logout" class="px-6 py-2.5 rounded-full bg-zinc-100 border border-zinc-200 text-zinc-600 font-medium hover:bg-zinc-200 transition-all duration-300 ease-in-out">
+                    Logout
+                </a>
+                <% } %>
             </nav>
 
         </header>

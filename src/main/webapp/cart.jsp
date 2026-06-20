@@ -72,11 +72,11 @@
                                 </div>
                                 <div>
                                     <h3 class="text-lg font-serif font-bold text-zinc-900"><%= item.getProduct().getName() %></h3>
-                                    <p class="text-sm text-slate-500 font-light mt-1">Rp <%= String.format("%,d", item.getProduct().getPrice()) %> <span class="text-zinc-300 mx-2">|</span> Qty: <%= item.getQuantity() %></p>
+                                    <p class="text-sm text-slate-500 font-light mt-1">Rp <%= String.format("%,d", (int)item.getProduct().getPrice()) %> <span class="text-zinc-300 mx-2">|</span> Qty: <%= item.getQuantity() %></p>
                                 </div>
                             </div>
                             <div class="text-right">
-                                <p class="text-lg font-bold text-rose-600/90">Rp <%= String.format("%,d", item.getSubtotal()) %></p>
+                                <p class="text-lg font-bold text-rose-600/90">Rp <%= String.format("%,d", (int)item.getSubtotal()) %></p>
                             </div>
                         </div>
                     <% } %>
@@ -86,7 +86,7 @@
                     <div class="flex justify-between items-end mb-8">
                         <div>
                             <p class="text-sm text-slate-500 font-medium uppercase tracking-wider mb-1">Total Amount</p>
-                            <p class="text-3xl font-serif font-bold text-zinc-900">Rp <%= String.format("%,d", cart.getTotalPrice()) %></p>
+                            <p class="text-3xl font-serif font-bold text-zinc-900">Rp <%= String.format("%,d", (int)cart.getTotalPrice()) %></p>
                         </div>
                         <form action="cart/clear" method="post">
                             <button type="submit" class="text-sm font-medium text-zinc-400 hover:text-red-500 transition-colors underline underline-offset-4">Clear Bag</button>

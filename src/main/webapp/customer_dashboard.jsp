@@ -44,7 +44,7 @@
         <div class="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
             <div>
                 <p class="text-rose-600 font-medium mb-1 tracking-wider text-sm uppercase">Welcome back,</p>
-                <h1 class="font-serif tracking-tight text-zinc-900 text-4xl font-bold"><%= user.getName() %></h1>
+                <h1 class="font-serif tracking-tight text-zinc-900 text-4xl font-bold"><%= user.getFullName() %></h1>
             </div>
             <a href="catalog" class="inline-flex items-center justify-center py-3 px-6 bg-zinc-900 text-white font-medium rounded-full shadow-md hover:bg-rose-500 transition-all duration-300 ease-in-out hover:-translate-y-1">
                 Continue Shopping

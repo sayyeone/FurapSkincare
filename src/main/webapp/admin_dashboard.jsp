@@ -87,7 +87,7 @@
                             <% for (Order o : pendingOrders) { %>
                                 <tr class="hover:bg-rose-50/20 transition-colors group">
                                     <td class="p-6 font-bold text-zinc-900">#<%= o.getId() %></td>
-                                    <td class="p-6 text-slate-600"><%= o.getCustomer().getName() %></td>
+                                    <td class="p-6 text-slate-600"><%= o.getCustomer().getFullName() %></td>
                                     <td class="p-6 font-bold text-rose-600">Rp <%= String.format("%,d", o.getTotalAmount()) %></td>
                                     <td class="p-6 text-slate-600 font-medium"><%= o.getPayment().getClass().getSimpleName() %></td>
                                     <td class="p-6">

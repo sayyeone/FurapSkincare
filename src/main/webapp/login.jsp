@@ -12,18 +12,18 @@
         .font-serif { font-family: 'Playfair Display', serif; }
     </style>
 </head>
-<body class="bg-[#FFF8F6] text-zinc-800 min-h-screen flex flex-col antialiased relative overflow-hidden">
+<body class="bg-[#FFF8F6] text-zinc-800 min-h-screen flex flex-col antialiased relative overflow-x-hidden">
 
     <!-- Premium Floating Header -->
     <div class="fixed top-0 inset-x-0 z-50 p-4">
         <header class="max-w-7xl mx-auto px-8 py-4 bg-white/80 backdrop-blur-md border border-white/60 shadow-[0_8px_30px_rgb(0,0,0,0.02)] rounded-full flex items-center justify-between transition-all duration-300">
-            <a href="index.jsp" class="font-serif tracking-wide text-rose-950/80 font-medium text-2xl hover:opacity-80 transition-opacity">
+            <a href="<%= request.getContextPath() %>/index.jsp" class="font-serif tracking-wide text-rose-950/80 font-medium text-2xl hover:opacity-80 transition-opacity">
                 FurapSkin.
             </a>
             <nav class="hidden md:flex items-center space-x-10">
-                <a href="catalog" class="text-zinc-500 font-medium hover:text-rose-950/80 transition-colors duration-300">Catalog</a>
-                <a href="login.jsp" class="text-rose-950/80 font-semibold transition-colors duration-300">Login</a>
-                <a href="register.jsp" class="px-6 py-2.5 rounded-full bg-rose-50/50 border border-rose-200/50 text-rose-600/80 font-medium hover:bg-rose-100/50 transition-all duration-300 ease-in-out hover:-translate-y-0.5">
+                <a href="<%= request.getContextPath() %>/catalog" class="text-zinc-500 font-medium hover:text-rose-950/80 transition-colors duration-300">Catalog</a>
+                <a href="<%= request.getContextPath() %>/login.jsp" class="text-rose-950/80 font-semibold transition-colors duration-300">Login</a>
+                <a href="<%= request.getContextPath() %>/register.jsp" class="px-6 py-2.5 rounded-full bg-rose-50/50 border border-rose-200/50 text-rose-600/80 font-medium hover:bg-rose-100/50 transition-all duration-300 ease-in-out hover:-translate-y-0.5">
                     Sign Up
                 </a>
             </nav>
@@ -42,13 +42,13 @@
                 <p class="text-sm text-slate-500 mt-2 font-light">Enter your credentials to access your account.</p>
             </div>
 
-            <% if ("true".equals(request.getParameter("error"))) { %>
+            <% if (request.getAttribute("error") != null) { %>
                 <div class="mb-6 p-4 bg-red-50/80 border border-red-100 text-red-500 rounded-2xl text-center text-sm font-medium">
-                    Invalid email or password.
+                    <%= request.getAttribute("error") %>
                 </div>
             <% } %>
 
-            <form action="auth/login" method="post" class="space-y-6">
+            <form action="<%= request.getContextPath() %>/auth/login" method="post" class="space-y-6">
                 <div>
                     <label class="block text-sm font-medium text-slate-600 mb-2">Email Address</label>
                     <input type="email" name="email" required class="w-full px-5 py-3.5 bg-[#FFF8F6]/50 border border-zinc-200 rounded-2xl focus:ring-2 focus:ring-rose-200 focus:border-rose-400 outline-none transition-all placeholder:text-zinc-400" placeholder="you@example.com">
@@ -62,14 +62,14 @@
                         </button>
                     </div>
                 </div>
-                <button type="submit" class="w-full py-4 mt-2 bg-zinc-900 text-white font-semibold tracking-wide rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.1)] hover:bg-rose-500 hover:shadow-[0_8px_30px_rgb(2fb,113,133,0.3)] transition-all duration-300 ease-in-out hover:-translate-y-1">
-                    Sign In
+                <button type="submit" class="w-full py-4 mt-2 bg-zinc-900 text-white font-semibold tracking-wide rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.1)] hover:bg-rose-500 hover:shadow-[0_8px_30px_rgb(225,29,72,0.3)] transition-all duration-300 ease-in-out hover:-translate-y-1">
+                    Login
                 </button>
             </form>
 
             <p class="text-center mt-8 text-zinc-500 text-sm font-light">
                 Don't have an account? 
-                <a href="register.jsp" class="text-rose-600 font-semibold hover:text-rose-700 transition-colors underline underline-offset-4 decoration-rose-200 hover:decoration-rose-500">Create one</a>
+                <a href="<%= request.getContextPath() %>/register.jsp" class="text-rose-600 font-semibold hover:text-rose-700 transition-colors underline underline-offset-4 decoration-rose-200 hover:decoration-rose-500">Create one</a>
             </p>
         </div>
     </main>
