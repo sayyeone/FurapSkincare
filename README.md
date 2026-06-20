@@ -1,73 +1,75 @@
-# FurapSkin - E-Commerce Web Application
+# FurapSkin - Premium E-Commerce Skin Care
 
-Aplikasi E-Commerce Skin Care berbasis Java EE (JSP/Servlet) dengan arsitektur MVC.
-
-## Persyaratan Sistem
-Aplikasi ini dapat dijalankan dengan dua cara:
-1. **Menggunakan Docker (Sangat Direkomendasikan)** - *Plug and play, tanpa perlu konfigurasi server manual.*
-2. **Tanpa Docker (Manual)** - Menggunakan XAMPP/WAMP dan Apache Tomcat secara lokal.
+FurapSkin adalah sebuah aplikasi E-Commerce modern berbasis web untuk penjualan produk perawatan kulit (Skin Care). Aplikasi ini dirancang dengan antarmuka pengguna (UI) yang premium dan responsif, serta memisahkan alur kerja antara Pelanggan (Customer) dan Administrator (Admin).
 
 ---
 
-### Opsi 1: Menjalankan dengan Docker (Rekomendasi)
+## 💻 Teknologi yang Digunakan
 
-Ini adalah cara paling mudah karena Docker akan otomatis mengonfigurasi Java, Tomcat, MySQL, dan phpMyAdmin.
+Aplikasi ini dikembangkan menggunakan teknologi Java Enterprise Edition (Java EE) dengan pendekatan arsitektur **Model-View-Controller (MVC)** yang solid.
+
+- **Bahasa Pemrograman**: Java 17
+- **Arsitektur**: Servlets & JSP (JavaServer Pages)
+- **Database**: MySQL 8.0
+- **Web Server**: Apache Tomcat 10.1
+- **Build Tool**: Apache Maven
+- **Containerization**: Docker & Docker Compose
+- **Styling (Frontend)**: Vanilla CSS dengan modern UI/UX design (Glassmorphism, Flexbox/Grid)
+- **Library Tambahan**: `jBCrypt` (untuk enkripsi *password* pengguna)
+
+---
+
+## 🚀 Cara Menjalankan Aplikasi
+
+Aplikasi ini sangat mudah dijalankan karena sudah dikemas menggunakan **Docker**. Anda tidak perlu melakukan konfigurasi database maupun instalasi server secara manual.
 
 **Langkah-langkah:**
-1. Pastikan **Docker Desktop** sudah terinstal dan berjalan di laptop Anda.
-2. Buka Terminal / Command Prompt dan arahkan ke folder proyek ini (`furap-v2`).
-3. Jalankan perintah berikut:
+1. Pastikan **Docker Desktop** sudah terinstal dan berjalan di komputer/laptop Anda.
+2. Buka Terminal (atau Command Prompt) dan arahkan ke folder proyek ini (`furap-v2`).
+3. Jalankan perintah sakti berikut:
    ```bash
    docker-compose up --build -d
    ```
-4. Tunggu beberapa saat hingga proses kompilasi selesai.
-5. Akses aplikasi melalui *browser*:
-   - **Aplikasi Web**: `http://localhost:8080`
-   - **Database (phpMyAdmin)**: `http://localhost:8081`
+4. Tunggu beberapa saat hingga proses kompilasi selesai (sekitar 1-2 menit pada proses awal).
+5. Akses aplikasi melalui *browser* Anda:
+   - **Halaman Web Utama**: `http://localhost:8080`
+   - **Manajemen Database (opsional)**: `http://localhost:8081`
+
+> **Penting**: Sistem database dan data awal (kategori, dll) akan terisi secara otomatis tanpa perlu *import* file SQL.
 
 ---
 
-### Opsi 2: Menjalankan Tanpa Docker (Setup Manual IDE & XAMPP)
+## 📖 Cara Penggunaan FurapSkin
 
-Jika dosen ingin menjalankan secara tradisional melalui IDE (IntelliJ IDEA / Eclipse) dan XAMPP:
+FurapSkin memiliki dua sisi penggunaan utama: **Sisi Pelanggan (Customer)** dan **Sisi Administrator (Admin)**.
 
-**1. Persiapan Database (XAMPP):**
-1. Buka XAMPP dan jalankan **MySQL**.
-2. Buka `http://localhost/phpmyadmin`.
-3. Buat database baru bernama `furapskin_v2`.
-4. Import file SQL yang berada di folder `db/init/schema.sql` ke dalam database tersebut.
-5. Masukkan data kategori standar ke tabel `categories` (misal: Skincare, Bodycare, Haircare, Accessories) karena tabel ini berelasi dengan tabel `products`.
+### 1. Kredensial Akses (PENTING)
+Untuk keperluan pengujian (Tugas Besar), gunakan akun berikut untuk mencoba alur aplikasi secara penuh:
 
-**2. Konfigurasi Koneksi Database di Java:**
-1. Buka file `src/main/java/com/furapskin/dao/DatabaseConnection.java`.
-2. Ubah URL koneksi dari konfigurasi Docker menjadi konfigurasi *localhost* lokal Anda.
-   Ubah baris ini:
-   ```java
-   private static final String URL = "jdbc:mysql://furapskin-db:3306/furapskin_v2";
-   private static final String USER = "root";
-   private static final String PASS = "root";
-   ```
-   Menjadi konfigurasi bawaan XAMPP:
-   ```java
-   private static final String URL = "jdbc:mysql://localhost:3306/furapskin_v2";
-   private static final String USER = "root";
-   private static final String PASS = ""; // Kosongkan jika password root XAMPP Anda kosong
-   ```
+**Akun Administrator (Admin):**
+- **Email**: `admin@furap.com` *(Atau email admin yang Anda gunakan tadi)*
+- **Password**: `PBO2026` *(Atau password yang Anda gunakan tadi)*
 
-**3. Mengatur Akun Admin (Seeder):**
-Secara *default*, semua akun yang baru didaftarkan lewat halaman `Register` akan berstatus sebagai `CUSTOMER`.
-Untuk menguji fitur Dasbor Admin, ikuti langkah ini:
-1. Jalankan aplikasi dan daftar sebuah akun baru seperti biasa lewat halaman *Sign Up*.
-2. Buka *database* (`http://localhost:8081` jika pakai Docker, atau `http://localhost/phpmyadmin` jika XAMPP).
-3. Buka tabel `users`.
-4. Ubah nilai pada kolom `role` untuk akun Anda dari `CUSTOMER` menjadi `ADMIN`.
-5. Login kembali ke dalam aplikasi, dan Anda akan otomatis diarahkan ke **Admin Dashboard**!
+**Akun Pelanggan (Customer):**
+- Anda dapat mendaftar (Register) akun baru dengan role Customer dari halaman Sign Up, atau menggunakan akun yang sudah Anda buat sebelumnya (misal: `giorgio@furap.com`).
 
-**4. Deploy ke Tomcat Lokal:**
-1. Pastikan Anda menggunakan **Apache Tomcat versi 10** (karena aplikasi ini menggunakan `jakarta.servlet` bukan `javax.servlet`).
-2. Pasang proyek ini ke Tomcat menggunakan IDE Anda (Eclipse/IntelliJ).
-3. Jalankan server Tomcat.
-4. Akses aplikasi di `http://localhost:8080`.
+### 2. Alur Penggunaan (User Flow)
+
+**A. Alur Pelanggan (Customer):**
+1. **Register & Login**: Masuk ke dalam aplikasi.
+2. **Katalog Produk**: Lihat berbagai produk kecantikan yang tersedia (kategori Skincare, Bodycare, Haircare, dll).
+3. **Keranjang (Cart)**: Tambahkan produk ke keranjang belanja.
+4. **Checkout**: Konfirmasi pesanan, masukkan alamat tujuan, dan pilih metode pembayaran (Bank Transfer / E-Wallet).
+5. **Dashboard Customer**: Setelah dibayar, pesanan Anda akan masuk ke status **PAID**. Tunggu hingga admin mengirimkan barang.
+6. **Konfirmasi Penerimaan & Review**: Saat pesanan dikirim (status berubah menjadi **SHIPPED**), klik tombol "Pesanan Diterima". Setelah pesanan selesai (**COMPLETED**), Anda bisa memberikan **Bintang & Ulasan (Review)** secara terpisah untuk setiap item produk.
+
+**B. Alur Administrator (Admin):**
+1. **Login sebagai Admin**: Masuk menggunakan kredensial Admin. Anda akan otomatis diarahkan ke **Admin Dashboard**.
+2. **Dashboard (Action Center)**:
+   - **Pending Approvals**: Setujui pembayaran baru yang masuk dari pelanggan.
+   - **Ready to Ship**: Temukan pesanan yang sudah dibayar (PAID) dan klik tombol **Ship Order** untuk mengirimkan barang ke kurir (mengubah status menjadi SHIPPED dan sistem akan memunculkan nomor resi otomatis).
+3. **Sales Report**: Laporan riwayat penjualan yang menampilkan status semua transaksi, akses *invoice*, serta analisis performa produk secara *real-time* (**Top Rated Products** vs **Needs Improvement**).
+4. **Product Management**: Katalog khusus Admin untuk Menambah (Add), Mengedit (Edit), dan Menghapus (Delete) produk beserta unggahan gambar aslinya.
 
 ---
-*Dibuat untuk Tugas Besar PBO.*
+*Dikembangkan untuk memenuhi Tugas Besar PBO.*
