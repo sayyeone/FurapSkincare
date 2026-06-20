@@ -30,16 +30,23 @@ public class OrderDAO {
                         int orderId = rs.getInt(1);
                         order.setId(orderId);
                         
-                        // Insert Order Items (Composition)
-                        try (PreparedStatement itemStmt = conn.prepareStatement(insertItemSql)) {
+                        // Insert Order Items and Update Stock (Composition)
+                        String updateStockSql = "UPDATE products SET stock = stock - ? WHERE id = ?";
+                        try (PreparedStatement itemStmt = conn.prepareStatement(insertItemSql);
+                             PreparedStatement stockStmt = conn.prepareStatement(updateStockSql)) {
                             for (OrderItem item : order.getItems()) {
                                 itemStmt.setInt(1, orderId);
                                 itemStmt.setInt(2, item.getProduct().getId());
                                 itemStmt.setInt(3, item.getQuantity());
                                 itemStmt.setDouble(4, item.getPrice());
                                 itemStmt.addBatch();
+                                
+                                stockStmt.setInt(1, item.getQuantity());
+                                stockStmt.setInt(2, item.getProduct().getId());
+                                stockStmt.addBatch();
                             }
                             itemStmt.executeBatch();
+                            stockStmt.executeBatch();
                         }
                         
                         // Insert Payment (Composition)

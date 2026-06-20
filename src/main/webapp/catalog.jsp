@@ -51,6 +51,13 @@
 
     <main class="flex-grow max-w-7xl mx-auto w-full px-6 pt-32 pb-20">
         
+        <% if ("stock".equals(request.getParameter("error"))) { %>
+        <div class="mb-8 p-4 bg-rose-50/80 border border-rose-200/50 rounded-2xl flex items-center justify-center text-rose-600 font-medium shadow-sm transition-all duration-300">
+            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+            Oops! Stok produk ini hanya tersisa <%= request.getParameter("limit") %>, dan Anda sudah memasukkan semuanya ke dalam keranjang.
+        </div>
+        <% } %>
+
         <div class="mb-12 text-center space-y-4">
             <h1 class="font-serif tracking-tight text-zinc-900 text-5xl font-medium">Curated Collection</h1>
             <p class="text-slate-500 font-light max-w-2xl mx-auto">Discover our range of meticulously crafted skincare essentials designed to nourish, protect, and illuminate.</p>

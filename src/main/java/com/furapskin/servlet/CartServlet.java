@@ -42,10 +42,33 @@ public class CartServlet extends HttpServlet {
             
             Product p = productDAO.getProductById(productId);
             if (p != null) {
-                CartItem item = new CartItem();
-                item.setProduct(p);
-                item.setQuantity(quantity);
-                cart.addItem(item);
+                int currentQty = 0;
+                for (CartItem ci : cart.getItems()) {
+                    if (ci.getProduct().getId() == productId) {
+                        currentQty += ci.getQuantity();
+                    }
+                }
+                
+                if (currentQty + quantity > p.getStock()) {
+                    response.sendRedirect(request.getContextPath() + "/catalog?error=stock&limit=" + p.getStock());
+                    return;
+                }
+                
+                boolean found = false;
+                for (CartItem ci : cart.getItems()) {
+                    if (ci.getProduct().getId() == productId) {
+                        ci.setQuantity(ci.getQuantity() + quantity);
+                        found = true;
+                        break;
+                    }
+                }
+                
+                if (!found) {
+                    CartItem item = new CartItem();
+                    item.setProduct(p);
+                    item.setQuantity(quantity);
+                    cart.addItem(item);
+                }
             }
             response.sendRedirect(request.getContextPath() + "/cart.jsp");
         } else if ("/clear".equals(pathInfo)) {
