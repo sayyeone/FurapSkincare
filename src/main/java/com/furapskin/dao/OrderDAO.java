@@ -164,6 +164,48 @@ public class OrderDAO {
                     o.setOrderDate(rs.getTimestamp("order_date"));
                     o.setTotalAmount(rs.getDouble("total_amount"));
                     o.setStatus(com.furapskin.model.OrderStatus.valueOf(rs.getString("status")));
+                    
+                    // Fetch Shipment
+                    String sSql = "SELECT * FROM shipments WHERE order_id = ?";
+                    try (PreparedStatement sStmt = conn.prepareStatement(sSql)) {
+                        sStmt.setInt(1, o.getId());
+                        try (ResultSet srs = sStmt.executeQuery()) {
+                            if (srs.next()) {
+                                Shipment s = new Shipment();
+                                s.setId(srs.getInt("id"));
+                                s.setTrackingNumber(srs.getString("tracking_number"));
+                                s.setCarrier(srs.getString("carrier"));
+                                s.setStatus(com.furapskin.model.ShipmentStatus.valueOf(srs.getString("status")));
+                                s.setShippingAddress(srs.getString("shipping_address"));
+                                s.setShippedDate(srs.getTimestamp("shipped_date"));
+                                o.setShipment(s);
+                            }
+                        }
+                    }
+                    
+                    // Fetch Items
+                    String iSql = "SELECT i.*, p.name as product_name FROM order_items i JOIN products p ON i.product_id = p.id WHERE i.order_id = ?";
+                    try (PreparedStatement iStmt = conn.prepareStatement(iSql)) {
+                        iStmt.setInt(1, o.getId());
+                        try (ResultSet irs = iStmt.executeQuery()) {
+                            java.util.List<OrderItem> items = new java.util.ArrayList<>();
+                            while (irs.next()) {
+                                OrderItem item = new OrderItem();
+                                item.setId(irs.getInt("id"));
+                                item.setQuantity(irs.getInt("quantity"));
+                                item.setPrice(irs.getDouble("price"));
+                                
+                                com.furapskin.model.Product p = new com.furapskin.model.Product();
+                                p.setId(irs.getInt("product_id"));
+                                p.setName(irs.getString("product_name"));
+                                item.setProduct(p);
+                                
+                                items.add(item);
+                            }
+                            o.setItems(items);
+                        }
+                    }
+                    
                     list.add(o);
                 }
             }
@@ -211,5 +253,151 @@ public class OrderDAO {
             e.printStackTrace();
         }
         return list;
+    }
+
+    public boolean shipOrder(int orderId, String trackingNumber) {
+        String updateOrder = "UPDATE orders SET status = 'SHIPPED' WHERE id = ?";
+        String updateShipment = "UPDATE shipments SET tracking_number = ?, carrier = 'FurapExpress', status = 'IN_TRANSIT', shipped_date = NOW() WHERE order_id = ?";
+        try (Connection conn = DatabaseConnection.getConnection()) {
+            conn.setAutoCommit(false);
+            try (PreparedStatement oStmt = conn.prepareStatement(updateOrder);
+                 PreparedStatement sStmt = conn.prepareStatement(updateShipment)) {
+                oStmt.setInt(1, orderId);
+                oStmt.executeUpdate();
+                
+                sStmt.setString(1, trackingNumber);
+                sStmt.setInt(2, orderId);
+                sStmt.executeUpdate();
+                
+                conn.commit();
+                return true;
+            } catch (SQLException e) {
+                conn.rollback();
+                e.printStackTrace();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public boolean completeOrder(int orderId) {
+        String updateOrder = "UPDATE orders SET status = 'COMPLETED' WHERE id = ?";
+        String updateShipment = "UPDATE shipments SET status = 'DELIVERED' WHERE order_id = ?";
+        try (Connection conn = DatabaseConnection.getConnection()) {
+            conn.setAutoCommit(false);
+            try (PreparedStatement oStmt = conn.prepareStatement(updateOrder);
+                 PreparedStatement sStmt = conn.prepareStatement(updateShipment)) {
+                oStmt.setInt(1, orderId);
+                oStmt.executeUpdate();
+                
+                sStmt.setInt(1, orderId);
+                sStmt.executeUpdate();
+                
+                conn.commit();
+                return true;
+            } catch (SQLException e) {
+                conn.rollback();
+                e.printStackTrace();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public Order getOrderById(int orderId) {
+        Order o = null;
+        String sql = "SELECT o.*, u.full_name as customer_name, u.email as customer_email " +
+                     "FROM orders o JOIN users u ON o.customer_id = u.id WHERE o.id = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, orderId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    o = new Order();
+                    o.setId(rs.getInt("id"));
+                    o.setOrderDate(rs.getTimestamp("order_date"));
+                    o.setTotalAmount(rs.getDouble("total_amount"));
+                    o.setStatus(com.furapskin.model.OrderStatus.valueOf(rs.getString("status")));
+                    
+                    com.furapskin.model.Customer c = new com.furapskin.model.Customer();
+                    c.setId(rs.getInt("customer_id"));
+                    c.setFullName(rs.getString("customer_name"));
+                    c.setEmail(rs.getString("customer_email"));
+                    o.setCustomer(c);
+                    
+                    // Fetch Payment
+                    String pSql = "SELECT * FROM payments WHERE order_id = ?";
+                    try (PreparedStatement pStmt = conn.prepareStatement(pSql)) {
+                        pStmt.setInt(1, orderId);
+                        try (ResultSet prs = pStmt.executeQuery()) {
+                            if (prs.next()) {
+                                String pMethod = prs.getString("payment_method");
+                                if ("BANK_TRANSFER".equals(pMethod)) {
+                                    com.furapskin.model.BankTransfer bt = new com.furapskin.model.BankTransfer();
+                                    bt.setAmount(prs.getDouble("amount"));
+                                    bt.setPaymentMethod(pMethod);
+                                    bt.setStatus(com.furapskin.model.PaymentStatus.valueOf(prs.getString("status")));
+                                    bt.setBuktiBayar(prs.getString("bukti_bayar"));
+                                    o.setPayment(bt);
+                                } else {
+                                    com.furapskin.model.EWallet ew = new com.furapskin.model.EWallet();
+                                    ew.setAmount(prs.getDouble("amount"));
+                                    ew.setPaymentMethod(pMethod);
+                                    ew.setStatus(com.furapskin.model.PaymentStatus.valueOf(prs.getString("status")));
+                                    ew.setTransactionId(prs.getString("transaction_id"));
+                                    o.setPayment(ew);
+                                }
+                            }
+                        }
+                    }
+                    
+                    // Fetch Shipment
+                    String sSql = "SELECT * FROM shipments WHERE order_id = ?";
+                    try (PreparedStatement sStmt = conn.prepareStatement(sSql)) {
+                        sStmt.setInt(1, orderId);
+                        try (ResultSet srs = sStmt.executeQuery()) {
+                            if (srs.next()) {
+                                Shipment s = new Shipment();
+                                s.setId(srs.getInt("id"));
+                                s.setTrackingNumber(srs.getString("tracking_number"));
+                                s.setCarrier(srs.getString("carrier"));
+                                s.setStatus(com.furapskin.model.ShipmentStatus.valueOf(srs.getString("status")));
+                                s.setShippingAddress(srs.getString("shipping_address"));
+                                s.setShippedDate(srs.getTimestamp("shipped_date"));
+                                o.setShipment(s);
+                            }
+                        }
+                    }
+                    
+                    // Fetch Items
+                    String iSql = "SELECT i.*, p.name as product_name FROM order_items i JOIN products p ON i.product_id = p.id WHERE i.order_id = ?";
+                    try (PreparedStatement iStmt = conn.prepareStatement(iSql)) {
+                        iStmt.setInt(1, orderId);
+                        try (ResultSet irs = iStmt.executeQuery()) {
+                            java.util.List<OrderItem> items = new java.util.ArrayList<>();
+                            while (irs.next()) {
+                                OrderItem item = new OrderItem();
+                                item.setId(irs.getInt("id"));
+                                item.setQuantity(irs.getInt("quantity"));
+                                item.setPrice(irs.getDouble("price"));
+                                
+                                com.furapskin.model.Product p = new com.furapskin.model.Product();
+                                p.setId(irs.getInt("product_id"));
+                                p.setName(irs.getString("product_name"));
+                                item.setProduct(p);
+                                
+                                items.add(item);
+                            }
+                            o.setItems(items);
+                        }
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return o;
     }
 }

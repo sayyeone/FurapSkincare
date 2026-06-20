@@ -52,6 +52,9 @@ public class AdminServlet extends HttpServlet {
             request.getRequestDispatcher("/admin_sales.jsp").forward(request, response);
         } else if ("/dashboard".equals(pathInfo) || pathInfo == null || "/".equals(pathInfo)) {
             request.setAttribute("pendingOrders", orderDAO.getPendingOrders());
+            com.furapskin.dao.ReviewDAO reviewDAO = new com.furapskin.dao.ReviewDAO();
+            request.setAttribute("topRated", reviewDAO.getTopRatedProducts(3));
+            request.setAttribute("worstRated", reviewDAO.getWorstRatedProducts(3));
             request.getRequestDispatcher("/admin_dashboard.jsp").forward(request, response);
         } else {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
@@ -73,6 +76,12 @@ public class AdminServlet extends HttpServlet {
             int orderId = Integer.parseInt(request.getParameter("orderId"));
             paymentDAO.approvePayment(orderId);
             response.sendRedirect(request.getContextPath() + "/admin/dashboard?success=true");
+            
+        } else if ("/ship-order".equals(pathInfo)) {
+            int orderId = Integer.parseInt(request.getParameter("orderId"));
+            String trackingNumber = "FURAP-" + (int)(Math.random() * 10000000);
+            orderDAO.shipOrder(orderId, trackingNumber);
+            response.sendRedirect(request.getContextPath() + "/admin/sales?shipped=true");
             
         } else if ("/add-product".equals(pathInfo)) {
             Product p = new Product();

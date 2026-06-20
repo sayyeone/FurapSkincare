@@ -92,16 +92,75 @@
                         <p class="text-sm text-slate-500 font-medium tracking-wide mb-1">ORDER #<%= o.getId() %></p>
                         <p class="text-lg font-serif font-bold text-zinc-900">Rp <%= String.format("%,d", (int)o.getTotalAmount()) %></p>
                         <p class="text-sm text-zinc-400 mt-1"><%= new java.text.SimpleDateFormat("MMM dd, yyyy").format(o.getOrderDate()) %></p>
+                        <% if (o.getShipment() != null && o.getShipment().getTrackingNumber() != null) { %>
+                            <p class="text-xs font-mono bg-zinc-100 px-2 py-1 rounded inline-block mt-2 text-zinc-700 font-medium border border-zinc-200">
+                                Resi: <%= o.getShipment().getTrackingNumber() %>
+                            </p>
+                        <% } %>
                     </div>
                     <div class="flex items-center gap-3">
-                        <span class="px-4 py-1.5 rounded-full text-xs font-bold tracking-wider uppercase
-                            <%= o.getStatus().name().equals("PENDING") ? "bg-amber-50 text-amber-600 border border-amber-200" :
-                                o.getStatus().name().equals("COMPLETED") ? "bg-emerald-50 text-emerald-600 border border-emerald-200" :
-                                "bg-rose-50 text-rose-600 border border-rose-200" %>">
-                            <%= o.getStatus().name() %>
-                        </span>
+                        <div class="text-right mr-2">
+                            <span class="px-4 py-1.5 rounded-full text-xs font-bold tracking-wider uppercase
+                                <%= o.getStatus().name().equals("PENDING") ? "bg-amber-50 text-amber-600 border border-amber-200" :
+                                    o.getStatus().name().equals("COMPLETED") ? "bg-emerald-50 text-emerald-600 border border-emerald-200" :
+                                    "bg-rose-50 text-rose-600 border border-rose-200" %>">
+                                <%= o.getStatus().name() %>
+                            </span>
+                        </div>
+                        
+                        <% if (com.furapskin.model.OrderStatus.SHIPPED.equals(o.getStatus())) { %>
+                            <form action="<%= request.getContextPath() %>/customer/receive-order" method="post" class="inline m-0">
+                                <input type="hidden" name="orderId" value="<%= o.getId() %>">
+                                <button type="submit" class="px-4 py-1.5 bg-zinc-900 text-white rounded-full text-xs font-bold hover:bg-rose-500 transition-colors">
+                                    Pesanan Diterima
+                                </button>
+                            </form>
+                        <% } %>
+                        
+                        <% if (!com.furapskin.model.OrderStatus.PENDING.equals(o.getStatus())) { %>
+                            <a href="<%= request.getContextPath() %>/customer/invoice?id=<%= o.getId() %>" class="px-4 py-1.5 bg-rose-50 text-rose-600 border border-rose-200 rounded-full text-xs font-bold hover:bg-rose-100 transition-colors inline-block">
+                                Invoice
+                            </a>
+                        <% } %>
                     </div>
                 </div>
+                
+                <%-- Product Items and Reviews --%>
+                <% if (o.getItems() != null && !o.getItems().isEmpty()) { %>
+                    <div class="px-6 pb-6 pt-2 bg-white rounded-b-2xl border-x border-b border-zinc-100 -mt-4 mb-4">
+                        <div class="space-y-4 pt-4 border-t border-zinc-100">
+                            <% for (com.furapskin.model.OrderItem item : o.getItems()) { %>
+                                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-zinc-50/50 p-4 rounded-xl border border-zinc-100 gap-4">
+                                    <div class="flex items-center gap-4">
+                                        <div class="w-10 h-10 bg-white border border-zinc-200 rounded-lg flex items-center justify-center text-sm shadow-sm">
+                                            📦
+                                        </div>
+                                        <div>
+                                            <p class="font-bold text-zinc-900 text-sm"><%= item.getProduct().getName() %></p>
+                                            <p class="text-xs text-slate-500 mt-0.5">Jumlah: <%= item.getQuantity() %> item</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <% if (com.furapskin.model.OrderStatus.COMPLETED.equals(o.getStatus())) { %>
+                                        <form action="<%= request.getContextPath() %>/customer/add-review" method="post" class="flex flex-wrap sm:flex-nowrap gap-2 items-center m-0 w-full sm:w-auto">
+                                            <input type="hidden" name="productId" value="<%= item.getProduct().getId() %>">
+                                            <select name="rating" required class="text-xs py-2 px-2 rounded-lg border border-zinc-200 bg-white focus:outline-none focus:border-rose-300 shadow-sm">
+                                                <option value="5">⭐⭐⭐⭐⭐ (Sempurna)</option>
+                                                <option value="4">⭐⭐⭐⭐ (Bagus)</option>
+                                                <option value="3">⭐⭐⭐ (Lumayan)</option>
+                                                <option value="2">⭐⭐ (Kurang)</option>
+                                                <option value="1">⭐ (Kecewa)</option>
+                                            </select>
+                                            <input type="text" name="comment" placeholder="Tulis ulasan..." class="text-xs py-2 px-3 rounded-lg border border-zinc-200 focus:outline-none focus:border-rose-300 focus:ring-1 focus:ring-rose-200 flex-grow sm:w-48 shadow-sm">
+                                            <button type="submit" class="text-xs font-bold bg-zinc-900 text-white px-4 py-2 rounded-lg hover:bg-rose-500 transition-colors shadow-sm">Nilai</button>
+                                        </form>
+                                    <% } %>
+                                </div>
+                            <% } %>
+                        </div>
+                    </div>
+                <% } %>
+                
                 <% } %>
             </div>
             <% } %>

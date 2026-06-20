@@ -129,7 +129,8 @@
                                         <th class="p-4 pl-6">Order ID</th>
                                         <th class="p-4">Customer</th>
                                         <th class="p-4 text-right">Amount</th>
-                                        <th class="p-4 text-center pr-6">Status</th>
+                                        <th class="p-4 text-center">Status</th>
+                                        <th class="p-4 text-right pr-6">Action</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-zinc-50">
@@ -146,10 +147,23 @@
                                             </td>
                                             <td class="p-4 font-medium text-sm text-slate-700"><%= o.getCustomer().getFullName() %></td>
                                             <td class="p-4 text-right font-bold text-rose-600 text-sm">Rp <%= String.format("%,d", (int)o.getTotalAmount()) %></td>
-                                            <td class="p-4 text-center pr-6">
+                                            <td class="p-4 text-center">
                                                 <span class="px-3 py-1 bg-green-50 text-green-600 border border-green-100 rounded-full text-[10px] font-bold tracking-wide">
                                                     <%= o.getStatus() %>
                                                 </span>
+                                            </td>
+                                            <td class="p-4 text-right pr-6 space-x-2">
+                                                <% if (com.furapskin.model.OrderStatus.PAID.equals(o.getStatus())) { %>
+                                                    <form action="<%= request.getContextPath() %>/admin/ship-order" method="post" class="inline">
+                                                        <input type="hidden" name="orderId" value="<%= o.getId() %>">
+                                                        <button type="submit" class="px-4 py-1.5 bg-zinc-900 text-white rounded-full text-xs font-bold hover:bg-rose-500 transition-colors">
+                                                            Ship Order
+                                                        </button>
+                                                    </form>
+                                                <% } %>
+                                                <a href="<%= request.getContextPath() %>/customer/invoice?id=<%= o.getId() %>" class="px-4 py-1.5 bg-rose-50 text-rose-600 border border-rose-200 rounded-full text-xs font-bold hover:bg-rose-100 transition-colors inline-block">
+                                                    Invoice
+                                                </a>
                                             </td>
                                         </tr>
                                     <% } %>
