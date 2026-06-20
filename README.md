@@ -44,14 +44,17 @@ Aplikasi ini sangat mudah dijalankan karena sudah dikemas menggunakan **Docker**
 FurapSkin memiliki dua sisi penggunaan utama: **Sisi Pelanggan (Customer)** dan **Sisi Administrator (Admin)**.
 
 ### 1. Kredensial Akses (PENTING)
-Untuk keperluan pengujian (Tugas Besar), gunakan akun berikut untuk mencoba alur aplikasi secara penuh:
+Untuk keperluan pengujian (Tugas Besar), gunakan panduan berikut untuk membuat dan mengakses akun:
 
-**Akun Administrator (Admin):**
-- **Email**: `admin@furap.com` *(Atau email admin yang Anda gunakan tadi)*
-- **Password**: `PBO2026` *(Atau password yang Anda gunakan tadi)*
+**Cara Membuat Akun Administrator (Admin):**
+- Buka halaman **Sign Up** (Register).
+- Isi data diri Anda seperti biasa (Email, Password, dll).
+- Pada kolom isian rahasia **Admin Token** (atau Kredensial Admin), masukkan kode wajib ini: **`PBO2026`**
+- Selesai! Akun Anda akan otomatis terdaftar dengan hak akses penuh sebagai Admin.
 
 **Akun Pelanggan (Customer):**
-- Anda dapat mendaftar (Register) akun baru dengan role Customer dari halaman Sign Up, atau menggunakan akun yang sudah Anda buat sebelumnya (misal: `giorgio@furap.com`).
+- Anda dapat mendaftar (Register) akun baru seperti biasa dari halaman Sign Up.
+- Kosongkan bagian Admin Token, maka akun tersebut otomatis menjadi Customer biasa.
 
 ### 2. Alur Penggunaan (User Flow)
 
