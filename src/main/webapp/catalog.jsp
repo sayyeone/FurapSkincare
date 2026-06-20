@@ -65,19 +65,35 @@
 
     <main class="flex-grow max-w-7xl mx-auto w-full px-6 pt-32 pb-20">
         
-        <% if ("stock".equals(request.getParameter("error"))) { %>
-        <div class="mb-8 p-4 bg-rose-50/80 border border-rose-200/50 rounded-2xl flex items-center justify-center text-rose-600 font-medium shadow-sm transition-all duration-300">
-            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-            Oops! Stok produk ini hanya tersisa <%= request.getParameter("limit") %>, dan Anda sudah memasukkan semuanya ke dalam keranjang.
-        </div>
-        <% } %>
+        <!-- Floating Toasts -->
+        <div id="toast-container" class="fixed top-24 left-1/2 transform -translate-x-1/2 z-50 flex flex-col gap-3 w-[90%] max-w-md pointer-events-none">
+            <% if ("stock".equals(request.getParameter("error"))) { %>
+            <div class="toast-message p-4 bg-rose-50/95 backdrop-blur-md border border-rose-200 rounded-2xl flex items-start text-rose-600 font-medium shadow-[0_8px_30px_rgb(225,29,72,0.15)] transition-all duration-500 transform translate-y-0 opacity-100">
+                <svg class="w-5 h-5 mr-3 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                <p class="text-sm">Oops! Stok produk ini hanya tersisa <%= request.getParameter("limit") %>, dan Anda sudah memasukkan semuanya ke dalam keranjang.</p>
+            </div>
+            <% } %>
 
-        <% if ("add".equals(request.getParameter("success"))) { %>
-        <div class="mb-8 p-4 bg-emerald-50/80 border border-emerald-200/50 rounded-2xl flex items-center justify-center text-emerald-600 font-medium shadow-sm transition-all duration-300">
-            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-            Produk berhasil ditambahkan ke keranjang belanja Anda!
+            <% if ("add".equals(request.getParameter("success"))) { %>
+            <div class="toast-message p-4 bg-emerald-50/95 backdrop-blur-md border border-emerald-200 rounded-2xl flex items-start text-emerald-600 font-medium shadow-[0_8px_30px_rgb(5,150,105,0.15)] transition-all duration-500 transform translate-y-0 opacity-100">
+                <svg class="w-5 h-5 mr-3 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                <p class="text-sm">Produk berhasil ditambahkan ke keranjang belanja Anda!</p>
+            </div>
+            <% } %>
         </div>
-        <% } %>
+
+        <script>
+            document.addEventListener("DOMContentLoaded", () => {
+                setTimeout(() => {
+                    const toasts = document.querySelectorAll('.toast-message');
+                    toasts.forEach(toast => {
+                        toast.classList.remove('translate-y-0', 'opacity-100');
+                        toast.classList.add('-translate-y-4', 'opacity-0');
+                        setTimeout(() => toast.remove(), 500);
+                    });
+                }, 3500);
+            });
+        </script>
 
         <div class="mb-12 text-center space-y-4">
             <h1 class="font-serif tracking-tight text-zinc-900 text-5xl font-medium">Curated Collection</h1>
