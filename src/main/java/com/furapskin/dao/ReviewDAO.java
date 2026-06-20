@@ -10,14 +10,15 @@ import java.util.List;
 
 public class ReviewDAO {
 
-    public boolean addReview(int productId, int customerId, int rating, String comment) {
-        String sql = "INSERT INTO reviews (product_id, customer_id, rating, comment) VALUES (?, ?, ?, ?)";
+    public boolean addReview(int productId, int customerId, int rating, String comment, int orderItemId) {
+        String sql = "INSERT INTO reviews (product_id, customer_id, rating, comment, order_item_id) VALUES (?, ?, ?, ?, ?)";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, productId);
             stmt.setInt(2, customerId);
             stmt.setInt(3, rating);
             stmt.setString(4, comment);
+            stmt.setInt(5, orderItemId);
             stmt.executeUpdate();
             return true;
         } catch (SQLException e) {
@@ -27,20 +28,21 @@ public class ReviewDAO {
     }
 
     public List<Product> getTopRatedProducts(int limit) {
-        return getRatedProducts(limit, "DESC");
+        return getRatedProducts(limit, "DESC", "HAVING avg_rating >= 4.0");
     }
 
     public List<Product> getWorstRatedProducts(int limit) {
-        return getRatedProducts(limit, "ASC");
+        return getRatedProducts(limit, "ASC", "HAVING avg_rating < 4.0");
     }
 
-    private List<Product> getRatedProducts(int limit, String sortOrder) {
+    private List<Product> getRatedProducts(int limit, String sortOrder, String havingClause) {
         List<Product> products = new ArrayList<>();
         // Fetch products, calculate average rating, and count total reviews
         String sql = "SELECT p.*, AVG(r.rating) as avg_rating, COUNT(r.id) as review_count " +
                      "FROM products p " +
                      "JOIN reviews r ON p.id = r.product_id " +
                      "GROUP BY p.id " +
+                     havingClause + " " +
                      "ORDER BY avg_rating " + sortOrder + ", review_count DESC " +
                      "LIMIT ?";
         try (Connection conn = DatabaseConnection.getConnection();

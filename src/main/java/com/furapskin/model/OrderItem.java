@@ -21,4 +21,8 @@ public class OrderItem {
 
     public double getPrice() { return price; }
     public void setPrice(double price) { this.price = price; }
+    
+    private boolean reviewed;
+    public boolean isReviewed() { return reviewed; }
+    public void setReviewed(boolean reviewed) { this.reviewed = reviewed; }
 }

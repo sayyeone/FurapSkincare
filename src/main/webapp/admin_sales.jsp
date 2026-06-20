@@ -153,14 +153,7 @@
                                                 </span>
                                             </td>
                                             <td class="p-4 text-right pr-6 space-x-2">
-                                                <% if (com.furapskin.model.OrderStatus.PAID.equals(o.getStatus())) { %>
-                                                    <form action="<%= request.getContextPath() %>/admin/ship-order" method="post" class="inline">
-                                                        <input type="hidden" name="orderId" value="<%= o.getId() %>">
-                                                        <button type="submit" class="px-4 py-1.5 bg-zinc-900 text-white rounded-full text-xs font-bold hover:bg-rose-500 transition-colors">
-                                                            Ship Order
-                                                        </button>
-                                                    </form>
-                                                <% } %>
+                                                <%-- Ship Order moved to Dashboard --%>
                                                 <a href="<%= request.getContextPath() %>/customer/invoice?id=<%= o.getId() %>" class="px-4 py-1.5 bg-rose-50 text-rose-600 border border-rose-200 rounded-full text-xs font-bold hover:bg-rose-100 transition-colors inline-block">
                                                     Invoice
                                                 </a>
@@ -171,6 +164,99 @@
                             </table>
                         </div>
                     <% } %>
+                </div>
+            </div>
+        </div>
+
+        <%-- Ratings Dashboard Section --%>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
+            <%-- Top Rated Products --%>
+            <div class="bg-white/80 backdrop-blur-md rounded-3xl p-8 border border-white/60 shadow-[0_8px_30px_rgb(0,0,0,0.02)]">
+                <h3 class="text-xl font-serif font-bold text-zinc-900 mb-6 flex items-center gap-3">
+                    <span class="text-2xl">🌟</span> Top Rated Products
+                </h3>
+                <div class="space-y-4">
+                    <% 
+                        java.util.List<com.furapskin.model.Product> topRated = (java.util.List<com.furapskin.model.Product>) request.getAttribute("topRated");
+                        if (topRated == null || topRated.isEmpty()) { 
+                    %>
+                        <p class="text-sm text-slate-500">Not enough data to display top products.</p>
+                    <% } else { 
+                        for (com.furapskin.model.Product p : topRated) {
+                            int avg = 0;
+                            String countStr = "0";
+                            if (p.getAllReviews() != null && !p.getAllReviews().isEmpty()) {
+                                avg = p.getAllReviews().get(0).getRating();
+                                countStr = p.getAllReviews().get(0).getComment();
+                            }
+                    %>
+                        <div class="flex items-center gap-4 p-4 border border-zinc-100 rounded-2xl bg-zinc-50/50">
+                            <div class="w-12 h-12 bg-white rounded-xl overflow-hidden shrink-0 border border-zinc-200">
+                                <% if (p.getImageUrl() != null && !p.getImageUrl().isEmpty()) { %>
+                                    <img src="<%= request.getContextPath() %>/<%= p.getImageUrl() %>" alt="<%= p.getName() %>" class="w-full h-full object-cover">
+                                <% } else { %>
+                                    <div class="w-full h-full bg-slate-100 flex items-center justify-center text-slate-400">
+                                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                    </div>
+                                <% } %>
+                            </div>
+                            <div class="flex-grow">
+                                <p class="font-bold text-zinc-900 text-sm"><%= p.getName() %></p>
+                                <div class="flex items-center gap-2 mt-1 text-xs">
+                                    <div class="flex text-amber-400">
+                                        <% for(int i=0; i<avg; i++) out.print("★"); %>
+                                        <% for(int i=avg; i<5; i++) out.print("☆"); %>
+                                    </div>
+                                    <span class="text-slate-500">(<%= countStr %>)</span>
+                                </div>
+                            </div>
+                        </div>
+                    <% } } %>
+                </div>
+            </div>
+
+            <%-- Worst Rated Products --%>
+            <div class="bg-white/80 backdrop-blur-md rounded-3xl p-8 border border-white/60 shadow-[0_8px_30px_rgb(0,0,0,0.02)]">
+                <h3 class="text-xl font-serif font-bold text-zinc-900 mb-6 flex items-center gap-3">
+                    <span class="text-2xl">⚠️</span> Needs Improvement
+                </h3>
+                <div class="space-y-4">
+                    <% 
+                        java.util.List<com.furapskin.model.Product> worstRated = (java.util.List<com.furapskin.model.Product>) request.getAttribute("worstRated");
+                        if (worstRated == null || worstRated.isEmpty()) { 
+                    %>
+                        <p class="text-sm text-slate-500">Not enough data to display low-rated products.</p>
+                    <% } else { 
+                        for (com.furapskin.model.Product p : worstRated) {
+                            int avg = 0;
+                            String countStr = "0";
+                            if (p.getAllReviews() != null && !p.getAllReviews().isEmpty()) {
+                                avg = p.getAllReviews().get(0).getRating();
+                                countStr = p.getAllReviews().get(0).getComment();
+                            }
+                    %>
+                        <div class="flex items-center gap-4 p-4 border border-rose-100 rounded-2xl bg-rose-50/30">
+                            <div class="w-12 h-12 bg-white rounded-xl overflow-hidden shrink-0 border border-zinc-200">
+                                <% if (p.getImageUrl() != null && !p.getImageUrl().isEmpty()) { %>
+                                    <img src="<%= request.getContextPath() %>/<%= p.getImageUrl() %>" alt="<%= p.getName() %>" class="w-full h-full object-cover">
+                                <% } else { %>
+                                    <div class="w-full h-full bg-slate-100 flex items-center justify-center text-slate-400">
+                                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                    </div>
+                                <% } %>
+                            </div>
+                            <div class="flex-grow">
+                                <p class="font-bold text-zinc-900 text-sm"><%= p.getName() %></p>
+                                <div class="flex items-center gap-2 mt-1 text-xs">
+                                    <div class="flex text-amber-400">
+                                        <% for(int i=0; i<avg; i++) out.print("★"); %>
+                                        <% for(int i=avg; i<5; i++) out.print("☆"); %>
+                                    </div>
+                                    <span class="text-slate-500">(<%= countStr %>)</span>
+                                </div>
+                            </div>
+                        </div>
+                    <% } } %>
                 </div>
             </div>
         </div>

@@ -132,8 +132,12 @@
                             <% for (com.furapskin.model.OrderItem item : o.getItems()) { %>
                                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-zinc-50/50 p-4 rounded-xl border border-zinc-100 gap-4">
                                     <div class="flex items-center gap-4">
-                                        <div class="w-10 h-10 bg-white border border-zinc-200 rounded-lg flex items-center justify-center text-sm shadow-sm">
-                                            📦
+                                        <div class="w-12 h-12 bg-white border border-zinc-200 rounded-lg flex items-center justify-center text-sm shadow-sm overflow-hidden shrink-0">
+                                            <% if (item.getProduct().getImageUrl() != null && !item.getProduct().getImageUrl().isEmpty()) { %>
+                                                <img src="<%= request.getContextPath() %>/<%= item.getProduct().getImageUrl() %>" alt="<%= item.getProduct().getName() %>" class="w-full h-full object-cover">
+                                            <% } else { %>
+                                                📦
+                                            <% } %>
                                         </div>
                                         <div>
                                             <p class="font-bold text-zinc-900 text-sm"><%= item.getProduct().getName() %></p>
@@ -142,20 +146,51 @@
                                     </div>
                                     
                                     <% if (com.furapskin.model.OrderStatus.COMPLETED.equals(o.getStatus())) { %>
-                                        <form action="<%= request.getContextPath() %>/customer/add-review" method="post" class="flex flex-wrap sm:flex-nowrap gap-2 items-center m-0 w-full sm:w-auto">
-                                            <input type="hidden" name="productId" value="<%= item.getProduct().getId() %>">
-                                            <select name="rating" required class="text-xs py-2 px-2 rounded-lg border border-zinc-200 bg-white focus:outline-none focus:border-rose-300 shadow-sm">
-                                                <option value="5">⭐⭐⭐⭐⭐ (Sempurna)</option>
-                                                <option value="4">⭐⭐⭐⭐ (Bagus)</option>
-                                                <option value="3">⭐⭐⭐ (Lumayan)</option>
-                                                <option value="2">⭐⭐ (Kurang)</option>
-                                                <option value="1">⭐ (Kecewa)</option>
-                                            </select>
-                                            <input type="text" name="comment" placeholder="Tulis ulasan..." class="text-xs py-2 px-3 rounded-lg border border-zinc-200 focus:outline-none focus:border-rose-300 focus:ring-1 focus:ring-rose-200 flex-grow sm:w-48 shadow-sm">
-                                            <button type="submit" class="text-xs font-bold bg-zinc-900 text-white px-4 py-2 rounded-lg hover:bg-rose-500 transition-colors shadow-sm">Nilai</button>
-                                        </form>
+                                        <% if (!item.isReviewed()) { %>
+                                            <button type="button" onclick="document.getElementById('review-form-<%= item.getId() %>').classList.toggle('hidden')" class="text-xs font-bold bg-rose-50 text-rose-600 border border-rose-200 px-4 py-2 rounded-lg hover:bg-rose-100 transition-colors shadow-sm">
+                                                Beri Nilai
+                                            </button>
+                                        <% } else { %>
+                                            <span class="text-xs font-bold text-emerald-600 bg-emerald-50 border border-emerald-200 px-4 py-2 rounded-lg flex items-center gap-1">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                                Telah Diulas
+                                            </span>
+                                        <% } %>
                                     <% } %>
                                 </div>
+                                
+                                <% if (com.furapskin.model.OrderStatus.COMPLETED.equals(o.getStatus()) && !item.isReviewed()) { %>
+                                    <div id="review-form-<%= item.getId() %>" class="hidden mt-2 pt-4 border-t border-zinc-100">
+                                        <form action="<%= request.getContextPath() %>/customer/add-review" method="post" class="flex flex-col gap-4">
+                                            <input type="hidden" name="productId" value="<%= item.getProduct().getId() %>">
+                                            <input type="hidden" name="orderItemId" value="<%= item.getId() %>">
+                                            <input type="hidden" name="rating" id="rating-val-<%= item.getId() %>" value="5">
+                                            
+                                            <div class="flex flex-col sm:flex-row sm:items-center gap-2" id="star-container-<%= item.getId() %>">
+                                                <span class="text-sm text-slate-600 font-medium w-32">Kualitas Produk</span>
+                                                <div class="flex gap-1">
+                                                    <% for(int s=1; s<=5; s++) { %>
+                                                        <svg onclick="setRating(<%= item.getId() %>, <%= s %>)" data-val="<%= s %>" class="w-8 h-8 cursor-pointer text-amber-400 fill-current hover:scale-110 transition-transform drop-shadow-sm" viewBox="0 0 20 20">
+                                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                                        </svg>
+                                                    <% } %>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="flex gap-3">
+                                                <div class="w-10 h-10 rounded-full bg-rose-100 hidden sm:flex items-center justify-center text-rose-500 shrink-0">
+                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                                                </div>
+                                                <textarea name="comment" rows="2" placeholder="Bagikan penilaianmu tentang produk ini kepada pengguna lain... (opsional)" class="w-full text-sm p-4 rounded-xl border border-zinc-200 focus:outline-none focus:border-rose-400 focus:ring-4 focus:ring-rose-50 shadow-inner bg-zinc-50/50 resize-none transition-all"></textarea>
+                                            </div>
+                                            
+                                            <div class="flex justify-end mt-1">
+                                                <button type="submit" class="text-sm font-bold bg-rose-500 text-white px-8 py-2.5 rounded-full hover:bg-rose-600 transition-colors shadow-md hover:shadow-lg active:scale-95">Kirim</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                <% } %>
+                            </div>
                             <% } %>
                         </div>
                     </div>
@@ -167,5 +202,22 @@
         </div>
 
     </main>
+
+    <script>
+    function setRating(itemId, rating) {
+        document.getElementById('rating-val-' + itemId).value = rating;
+        const container = document.getElementById('star-container-' + itemId);
+        const stars = container.querySelectorAll('svg');
+        stars.forEach(star => {
+            if (parseInt(star.getAttribute('data-val')) <= rating) {
+                star.classList.remove('text-zinc-300');
+                star.classList.add('text-amber-400', 'fill-current');
+            } else {
+                star.classList.remove('text-amber-400', 'fill-current');
+                star.classList.add('text-zinc-300');
+            }
+        });
+    }
+    </script>
 </body>
 </html>

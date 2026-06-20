@@ -92,6 +92,34 @@ public class OrderDAO {
         }
         return false;
     }
+    public java.util.List<Order> getOrdersToShip() {
+        java.util.List<Order> list = new java.util.ArrayList<>();
+        String sql = "SELECT o.id, o.order_date, o.total_amount, o.status, u.full_name as customer_name " +
+                     "FROM orders o JOIN users u ON o.customer_id = u.id " +
+                     "WHERE o.status = 'PAID' ORDER BY o.order_date ASC";
+                     
+        try (Connection conn = DatabaseConnection.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            while (rs.next()) {
+                Order o = new Order();
+                o.setId(rs.getInt("id"));
+                o.setOrderDate(rs.getTimestamp("order_date"));
+                o.setTotalAmount(rs.getDouble("total_amount"));
+                o.setStatus(com.furapskin.model.OrderStatus.valueOf(rs.getString("status")));
+                
+                com.furapskin.model.Customer c = new com.furapskin.model.Customer();
+                c.setFullName(rs.getString("customer_name"));
+                o.setCustomer(c);
+                
+                list.add(o);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
 
     public java.util.List<Order> getAllPaidOrders() {
         java.util.List<Order> list = new java.util.ArrayList<>();
@@ -184,7 +212,9 @@ public class OrderDAO {
                     }
                     
                     // Fetch Items
-                    String iSql = "SELECT i.*, p.name as product_name FROM order_items i JOIN products p ON i.product_id = p.id WHERE i.order_id = ?";
+                    String iSql = "SELECT i.*, p.name as product_name, p.image_url, " +
+                                  "(SELECT COUNT(*) FROM reviews r WHERE r.order_item_id = i.id) as review_count " +
+                                  "FROM order_items i JOIN products p ON i.product_id = p.id WHERE i.order_id = ?";
                     try (PreparedStatement iStmt = conn.prepareStatement(iSql)) {
                         iStmt.setInt(1, o.getId());
                         try (ResultSet irs = iStmt.executeQuery()) {
@@ -194,10 +224,12 @@ public class OrderDAO {
                                 item.setId(irs.getInt("id"));
                                 item.setQuantity(irs.getInt("quantity"));
                                 item.setPrice(irs.getDouble("price"));
+                                item.setReviewed(irs.getInt("review_count") > 0);
                                 
                                 com.furapskin.model.Product p = new com.furapskin.model.Product();
                                 p.setId(irs.getInt("product_id"));
                                 p.setName(irs.getString("product_name"));
+                                p.setImageUrl(irs.getString("image_url"));
                                 item.setProduct(p);
                                 
                                 items.add(item);

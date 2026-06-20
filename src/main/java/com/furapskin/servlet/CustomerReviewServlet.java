@@ -30,9 +30,10 @@ public class CustomerReviewServlet extends HttpServlet {
             int productId = Integer.parseInt(request.getParameter("productId"));
             int rating = Integer.parseInt(request.getParameter("rating"));
             String comment = request.getParameter("comment");
+            int orderItemId = Integer.parseInt(request.getParameter("orderItemId"));
 
             if (rating >= 1 && rating <= 5) {
-                reviewDAO.addReview(productId, user.getId(), rating, comment);
+                reviewDAO.addReview(productId, user.getId(), rating, comment, orderItemId);
             }
         } catch (Exception e) {
             e.printStackTrace();
