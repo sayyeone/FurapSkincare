@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  # 1. Database Container
+  furapskin-db:
+    image: mysql:8.0
+    container_name: furapskin-db
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: furapskin_v2
+    ports:
+      - "3307:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+      # Mount the generated schema initialization script to run on container creation
+      - ./db/init/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+    networks:
+      - furapskin-network
+
+  # 2. Database Management Interface
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin
+    environment:
+      PMA_HOST: furapskin-db
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: root
+    ports:
+      - "8081:80"
+    depends_on:
+      - furapskin-db
+    networks:
+      - furapskin-network
+
+  # 3. Java Web App (Tomcat 10) Container
+  furapskin-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: furapskin-app
+    ports:
+      - "8080:8080"
+    depends_on:
+      - furapskin-db
+    networks:
+      - furapskin-network
+
+networks:
+  furapskin-network:
+    driver: bridge
+
+volumes:
+  db_data:
