@@ -29,6 +29,21 @@ public class AdminServlet extends HttpServlet {
     private ProductDAO productDAO = new ProductDAO();
     private OrderDAO orderDAO = new OrderDAO();
 
+    private String getFormParameter(HttpServletRequest request, String name) {
+        String value = request.getParameter(name);
+        if (value == null && request.getContentType() != null && request.getContentType().toLowerCase().startsWith("multipart/form-data")) {
+            try {
+                Part part = request.getPart(name);
+                if (part != null) {
+                    value = new String(part.getInputStream().readAllBytes(), java.nio.charset.StandardCharsets.UTF_8);
+                }
+            } catch (Exception e) {
+                // Ignore
+            }
+        }
+        return value;
+    }
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession session = request.getSession();
@@ -88,17 +103,22 @@ public class AdminServlet extends HttpServlet {
             
         } else if ("/add-product".equals(pathInfo)) {
             Product p = new Product();
-            p.setName(request.getParameter("name"));
-            p.setDescription(request.getParameter("description"));
-            p.setPrice(Double.parseDouble(request.getParameter("price")));
-            p.setStock(Integer.parseInt(request.getParameter("stock")));
-            p.setBrand(request.getParameter("brand"));
-            p.setBpomId(request.getParameter("bpomId"));
+            p.setName(getFormParameter(request, "name"));
+            p.setDescription(getFormParameter(request, "description"));
+            
+            String priceStr = getFormParameter(request, "price");
+            p.setPrice(priceStr != null && !priceStr.trim().isEmpty() ? Double.parseDouble(priceStr) : 0.0);
+            
+            String stockStr = getFormParameter(request, "stock");
+            p.setStock(stockStr != null && !stockStr.trim().isEmpty() ? Integer.parseInt(stockStr) : 0);
+            
+            p.setBrand(getFormParameter(request, "brand"));
+            p.setBpomId(getFormParameter(request, "bpomId"));
             
             Category cat = new Category();
             // Defaulting category to 1 for simplicity, or we can fetch it if form has it
-            String catParam = request.getParameter("categoryId");
-            cat.setId(catParam != null ? Integer.parseInt(catParam) : 1);
+            String catParam = getFormParameter(request, "categoryId");
+            cat.setId((catParam != null && !catParam.trim().isEmpty()) ? Integer.parseInt(catParam) : 1);
             p.setCategory(cat);
             
             Part filePart = request.getPart("image");
@@ -125,19 +145,29 @@ public class AdminServlet extends HttpServlet {
             response.sendRedirect(request.getContextPath() + "/admin/products?deleted=true");
             
         } else if ("/update-product".equals(pathInfo)) {
-            int id = Integer.parseInt(request.getParameter("id"));
+            String idStr = getFormParameter(request, "id");
+            if (idStr == null || idStr.trim().isEmpty()) {
+                response.sendRedirect(request.getContextPath() + "/admin/products?error=missing_id");
+                return;
+            }
+            int id = Integer.parseInt(idStr);
             Product p = productDAO.getProductById(id);
             if (p != null) {
-                p.setName(request.getParameter("name"));
-                p.setDescription(request.getParameter("description"));
-                p.setPrice(Double.parseDouble(request.getParameter("price")));
-                p.setStock(Integer.parseInt(request.getParameter("stock")));
-                p.setBrand(request.getParameter("brand"));
-                p.setBpomId(request.getParameter("bpomId"));
+                p.setName(getFormParameter(request, "name"));
+                p.setDescription(getFormParameter(request, "description"));
+                
+                String priceStr = getFormParameter(request, "price");
+                p.setPrice(priceStr != null && !priceStr.trim().isEmpty() ? Double.parseDouble(priceStr) : 0.0);
+                
+                String stockStr = getFormParameter(request, "stock");
+                p.setStock(stockStr != null && !stockStr.trim().isEmpty() ? Integer.parseInt(stockStr) : 0);
+                
+                p.setBrand(getFormParameter(request, "brand"));
+                p.setBpomId(getFormParameter(request, "bpomId"));
                 
                 Category cat = new Category();
-                String catParam = request.getParameter("categoryId");
-                cat.setId(catParam != null ? Integer.parseInt(catParam) : p.getCategory().getId());
+                String catParam = getFormParameter(request, "categoryId");
+                cat.setId((catParam != null && !catParam.trim().isEmpty()) ? Integer.parseInt(catParam) : p.getCategory().getId());
                 p.setCategory(cat);
                 
                 Part filePart = request.getPart("image");

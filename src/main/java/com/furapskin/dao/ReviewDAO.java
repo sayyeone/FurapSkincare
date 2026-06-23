@@ -2,7 +2,6 @@ package com.furapskin.dao;
 
 import com.furapskin.model.Product;
 import com.furapskin.model.Review;
-import com.furapskin.model.Customer;
 
 import java.sql.*;
 import java.util.ArrayList;
